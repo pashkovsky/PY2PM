@@ -6,12 +6,12 @@
 # Сгенерировать список
 
 cook_book = {}
-dish = {}
 
 with open('cook_book.txt') as book:
 
     for line in book:
         if not line.isspace():
+            dish = {}
             dish_name = line.strip()
             quantity_ingridients = int(book.readline())
             dish['name'] = dish_name
