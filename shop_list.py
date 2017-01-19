@@ -5,34 +5,37 @@
 
 cook_book = {}
 
-with open('cook_book.txt') as book:
+# Функция чтения данных о меню с файла
+def create_dict_dishs(file_name):
+    with open(file_name) as book:
 
-    for line in book:
-        if not line.isspace():
-            dish = {}
-            dish_name = line.strip()
-            quantity_ingridients = int(book.readline())
-            dish['name'] = dish_name
-            dish['type'] = '2'
+        for line in book:
+            if not line.isspace():
+                dish = {}
+                dish_name = line.strip()
+                quantity_ingridients = int(book.readline())
+                dish['name'] = dish_name
+                dish['type'] = '2'
 
-            list_of_ingridients = []
+                list_of_ingridients = []
 
-            for ingridient in range(quantity_ingridients):
+                for ingridient in range(quantity_ingridients):
 
-                dict_ingridients = {}
-                ingridient = list(book.readline().strip().split('|'))
+                    dict_ingridients = {}
+                    ingridient = list(book.readline().strip().split('|'))
 
-                product = ingridient[0]
-                quantity = ingridient[1]
-                unit = ingridient[2]
+                    product = ingridient[0]
+                    quantity = ingridient[1]
+                    unit = ingridient[2]
 
-                dict_ingridients['unit'] = unit
-                dict_ingridients['quantity'] = quantity
-                dict_ingridients['product'] = product
-                list_of_ingridients.append(dict_ingridients)
-            dish['ingridients'] = list_of_ingridients
-            cook_book[dish_name] = dish
-#    print(cook_book)
+                    dict_ingridients['unit'] = unit
+                    dict_ingridients['quantity'] = quantity
+                    dict_ingridients['product'] = product
+                    list_of_ingridients.append(dict_ingridients)
+                dish['ingridients'] = list_of_ingridients
+                cook_book[dish_name] = dish
+        return cook_book
+        print(cook_book)
 
 def get_shop_list_by_dishes(dishes, people_count):
     shop_list = {}
@@ -62,6 +65,11 @@ def create_shop_list(people_count, first_dish, second_dish, third_dish):
     # Вывести список покупок
     print_shop_list(shop_list)
 
+# По умолчанию, для тестирования имя файла,
+# находящегося в той же директории, что и файл shop_list.py,
+# cook_book.txt
+file_name = input('Укажите название файла с меню (с расширением *.txt)\n')
+create_dict_dishs(file_name)
 print('Выберите первое блюдо: ')
 first_dish = input()
 print('Выберите второе блюдо: ')
