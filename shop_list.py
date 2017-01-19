@@ -1,37 +1,38 @@
 #Можно ли собрать библиотеку из рецептов по разделам:
-# закуски, 2-е, десерты. 
-# Потом создать функцию которая будет выводить список и количество продуктов  при 
-# выборе 1,2,3 блюда на _____ персон.  В итоге вывести на печать список покупок.
+# закуски, 2-е, десерты.
+# Потом создать функцию которая будет выводить список и количество продуктов при
+# выборе 1,2,3 блюда на _____ персон. В итоге вывести на печать список покупок.
 
-cook_book = {
-    'Омлет': {
-        'name': 'Омлет',
-        'type': '2-е',
-        'ingridients': [
-                {'product' : 'Яйца', 'quantity': 2, 'unit': 'шт'},
-                {'product' : 'Молоко', 'quantity': 50, 'unit': 'мл'},
-                {'product' : 'Помидор', 'quantity': 100, 'unit': 'г'},
-        ]
-    }, 
-    'Яблочный пирог': { 
-        'name': 'Яблочный пирог',
-        'type': 'Десерт',
-        'ingridients': [
-                {'product' : 'Яйца', 'quantity': 1, 'unit': 'шт'},
-                {'product' : 'Мука', 'quantity': 300, 'unit': 'г'},
-                {'product' : 'Масло', 'quantity': 60, 'unit': 'г'},
-                {'product' : 'Яблоки', 'quantity': 80, 'unit': 'г'},
-        ]
-    },
-    'Суп': {
-        'name': 'Суп',
-        'type': '1-е',
-        'ingridients': [
-                {'product' : 'Вода', 'quantity': 100, 'unit': 'мл'},
-                {'product' : 'Помидор', 'quantity': 300, 'unit': 'г'},
-        ]
-    }, 
-}
+cook_book = {}
+
+with open('cook_book.txt') as book:
+
+    for line in book:
+        if not line.isspace():
+            dish = {}
+            dish_name = line.strip()
+            quantity_ingridients = int(book.readline())
+            dish['name'] = dish_name
+            dish['type'] = '2'
+
+            list_of_ingridients = []
+
+            for ingridient in range(quantity_ingridients):
+
+                dict_ingridients = {}
+                ingridient = list(book.readline().strip().split('|'))
+
+                product = ingridient[0]
+                quantity = ingridient[1]
+                unit = ingridient[2]
+
+                dict_ingridients['unit'] = unit
+                dict_ingridients['quantity'] = quantity
+                dict_ingridients['product'] = product
+                list_of_ingridients.append(dict_ingridients)
+            dish['ingridients'] = list_of_ingridients
+            cook_book[dish_name] = dish
+#    print(cook_book)
 
 def get_shop_list_by_dishes(dishes, people_count):
     shop_list = {}
