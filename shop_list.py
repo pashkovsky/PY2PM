@@ -29,20 +29,19 @@ def create_dict_dishs(file_name):
                     unit = ingridient[2]
 
                     dict_ingridients['unit'] = unit
-                    dict_ingridients['quantity'] = quantity
+                    dict_ingridients['quantity'] = int(quantity)
                     dict_ingridients['product'] = product
                     list_of_ingridients.append(dict_ingridients)
                 dish['ingridients'] = list_of_ingridients
                 cook_book[dish_name] = dish
         return cook_book
-        print(cook_book)
 
 def get_shop_list_by_dishes(dishes, people_count):
     shop_list = {}
     for dish in dishes:
         for ingridient in dish['ingridients']:
             new_shop_item = dict(ingridient)
-            # пересчитали ингрединты по количеству людей
+            # пересчитали ингредиенты по количеству людей
             new_shop_item['quantity'] = new_shop_item['quantity'] * people_count
             if new_shop_item['product'] not in shop_list:
                 shop_list[new_shop_item['product']] = new_shop_item
@@ -65,10 +64,13 @@ def create_shop_list(people_count, first_dish, second_dish, third_dish):
     # Вывести список покупок
     print_shop_list(shop_list)
 
+def list_of_dishes(people_count, first_dish, second_dish, third_dish):
+    print('Вами выбраны для приготовления следующие блюда: {0}, {1}, {2} для {3} чел.'.format(first_dish.lower(), second_dish.lower(), third_dish.lower(), people_count))
+
 # По умолчанию, для тестирования имя файла,
 # находящегося в той же директории, что и файл shop_list.py,
 # cook_book.txt
-file_name = input('Укажите название файла с меню (с расширением *.txt)\n')
+file_name = input('Укажите название файла с меню (с расширением *.txt (для эксперимента можете указать cook_book.txt))\n')
 create_dict_dishs(file_name)
 print('Выберите первое блюдо: ')
 first_dish = input()
@@ -78,6 +80,7 @@ print('Выберите третье блюдо: ')
 third_dish = input()
 print('На сколько человек?')
 people_count = int(input())
-
-print('Список покупок: ')
+print('***')
+list_of_dishes(people_count, first_dish, second_dish, third_dish)
+print('\nСписок покупок: ')
 create_shop_list(people_count, first_dish, second_dish, third_dish)
