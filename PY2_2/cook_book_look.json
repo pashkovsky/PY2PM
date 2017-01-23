@@ -1,0 +1,69 @@
+{
+  'Омлет':
+          {
+            'ingridients': [
+                            {
+                             'product': 'Яйца ',
+                             'quantity': ' 2 ',
+                             'unit': ' шт'
+                            },
+                            {
+                             'product': 'Молоко ',
+                             'quantity': ' 50 ',
+                             'unit': ' мл'
+                            },
+                            {
+                             'product': 'Помидор ',
+                             'quantity': ' 100 ',
+                             'unit': ' г'
+                            }
+                           ],
+            'name': 'Омлет',
+            'quantity_ingridients': '3'
+          },
+  'Суп':
+          {
+            'ingridients':
+                          [
+                            {
+                              'product': 'Вода ',
+                              'quantity': ' 100 ',
+                              'unit': ' мл'
+                            },
+                            {
+                              'product': 'Помидор ',
+                              'quantity': ' 300 ',
+                              'unit': ' г'
+                            }
+                          ],
+            'name': 'Суп',
+            'quantity_ingridients': '3'},
+ 'Яблочный пирог':
+          {
+            'ingridients':
+                          [
+                            {
+                              'product': 'Яйца ',
+                              'quantity': ' 1 ',
+                              'unit': ' шт'
+                            },
+                            {
+                              'product': 'Мука ',
+                              'quantity': ' 300 ',
+                              'unit': ' г'
+                            },
+                            {
+                              'product': 'Масло ',
+                              'quantity': ' 60 ',
+                              'unit': ' г'
+                            },
+                            {
+                              'product': 'Яблоки ',
+                              'quantity': ' 80 ',
+                              'unit': ' г'
+                            }
+                          ],
+            'name': 'Яблочный пирог',
+            'quantity_ingridients': '4'
+          }
+}
