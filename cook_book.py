@@ -16,7 +16,6 @@ with open('cook_book.txt') as book:
             quantity_ingridients = int(book.readline())
             dish['name'] = dish_name
             dish['type'] = '2'
-    #        print(dish)
 
             list_of_ingridients = []
 
@@ -24,7 +23,7 @@ with open('cook_book.txt') as book:
 
                 dict_ingridients = {}
                 ingridient = list(book.readline().strip().split('|'))
-    #            print('характеристика ингридиента', ingridient)
+
                 product = ingridient[0]
                 quantity = ingridient[1]
                 unit = ingridient[2]
@@ -33,11 +32,9 @@ with open('cook_book.txt') as book:
                 dict_ingridients['quantity'] = quantity
                 dict_ingridients['product'] = product
                 list_of_ingridients.append(dict_ingridients)
-    #            print(ingridient)
-    #            print(dict_ingridients)
-    #            print('List of ingridients', list_of_ingridients)
+
             dish['ingridients'] = list_of_ingridients
             cook_book[dish_name] = dish
     print(cook_book)
 
-#        print (line.strip())
+
