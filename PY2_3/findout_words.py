@@ -3,26 +3,32 @@
 import codecs
 import json
 
-def parsed_string():
-    with codecs.open('newsfr.json', encoding="iso8859_5") as news:
-        return json.load(news)
 
-#print (parsed_string())
+t2 = []
+words = {}
+with codecs.open('newsfr.json', encoding="iso8859_5") as news:
 
-for rss in parsed_string().values():
-    for channel in rss.values():
-        for item in channel['item']:
-            for description in item['description'].values():
-#                print(description)
-                for word in description:
-                    print (word)
+    get_data = json.load(news)
 
-# for word in parsed_string():
-#     if len(word) > 6:
-#         print(word)
+    y = get_data['rss']['channel']['item']
+    for item in y:
+        for description in item['description'].values():
+            t1 = description.split()
+#            print(t1)
+            for word in t1:
+                if len(word) > 6:
+                    t2.append(word)
+#                    print(t2)
 
 
-    # for channel in news.values():
-    #     for item in channel.values():
-    #         for article in item:
-    #             print(json.load(article))
+    for word in t2:                                     # Счет количества слов
+        if word in words:
+            words[word] += 1
+        else: words[word] = 1
+
+    l = lambda x: x[1]                                  # Формула из http://pytalk.ru/forum/python/24229/
+    t3 = sorted(words.items(), key=l, reverse=True)
+#    print(sorted(words.items(), key=l, reverse=True))  # Печать полностью всего сортированого списка
+
+    for p in t3[:10]:                                   # Печатаем первые 10 элементов списка
+        print(p)
