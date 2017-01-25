@@ -20,41 +20,42 @@ def encoding(file_name):
     return file_encoding
 
 def parsing_file(file_name, word_length):
-    with codecs.open(file_name, encoding = encoding(file_name)) as news:
+    with codecs.open(file_name, encoding = encoding(file_name)) as file_news:
 
-        rss_of_news = json.load(news)
+        rss_of_news = json.load(file_news)
 
-        items = rss_of_news['rss']['channel']['item']         # Распарсили строку json в список
-        for item in items:
-            for description in item['description'].values():
-                list_of_words = description.split()
+        for news in rss_of_news['rss']['channel']['item']:  # Распарсили строку json в список
+            try:                                            # Отработка ньюанса в структуре json-файла
+                description = news['description']['__cdata']
+            except TypeError:
+                description = news['description']
 
-                for word in list_of_words:              # Выборка слов длиннее n количества символов
-                    if len(word) > word_length:
-                        list_of_long_words.append(word)
+            list_of_words = description.split()             # Добавление в список слов из строки
 
-    for word in list_of_long_words:                    # Подсчет слов, длиннее n количества символов
+            for word in list_of_words:                      # Выборка слов длиннее n количества символов
+                if len(word) > word_length:
+                    list_of_long_words.append(word)
+
+    for word in list_of_long_words:                         # Подсчет слов, длиннее n количества символов
         if word in words:
             words[word] += 1
         else: words[word] = 1
 
-    l = lambda x: x[1]                                  # Формула из http://pytalk.ru/forum/python/24229/
+    l = lambda x: x[1]                                      # Формула из http://pytalk.ru/forum/python/24229/
     t3 = sorted(words.items(), key=l, reverse=True)
 
 #    print(sorted(words.items(), key=l, reverse=True))  # Печать полностью всего сортированого списка. Проверка
 
+    print('Список первых 10 наиболее часто встречающихся в новостях\
+    слов с длиной более {} символов:'.format(word_length))
     for p in t3[:10]:                                   # Печать первых 10 элементов списка
         print(p)
 
 # Панель управления программой
 
-# file_name = input('Укажите с новой строки название файла, который Вы хотите обработать с помощью программы\n')
+file_name = input('Укажите с новой строки название файла, который Вы хотите обработать с помощью программы\n')
 # file_encoding = input('Укажите с новой строки кодировку файла\n')
-# word_length = int(input('Укажите с новой строки длинее какого количества символов будут учитываться слова\n'))
-
-file_name = 'newsfr.json'
-#file_encoding = "iso8859_5"
-word_length = 6
+word_length = int(input('Укажите с новой строки длинее какого количества символов будут учитываться слова\n'))
 
 parsing_file(file_name, word_length)
 
