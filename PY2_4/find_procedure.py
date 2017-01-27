@@ -42,10 +42,45 @@
 # на зачёт с отличием, использовать папку 'Advanced Migrations'
 
 import glob
-import os.path
+import os
+
 
 migrations = 'Migrations'
 
+# Запрашиваем строку для поиска
+#find_str = input('Введите строку: ')
+find_str = 'SELECT'
+
+# Отбираем файлы по маске
 files = glob.glob(os.path.join(migrations, "*.sql"))
-for file in files:
-	print(file)
+
+# Cписок файлов отобранных по маске
+files_list =list(files)
+print('Начальное количество файлов', len(files_list)) # Убрать
+
+# Контрольный список файлов, которые не содержат строку поиска
+files_str_out = []
+
+# Осуществляем поиск в файлах запрошенной строки
+for file_name in files_list:
+	with open(file_name) as file:
+		data = file.read()
+		row = data.find(find_str)
+		if  row == -1:
+			files_str_out.append(file_name)
+			files_list.remove(file_name)
+			print('Файл {0} удален'.format(file_name)) # Закомментировать. Проверка файлов по списку
+		else:
+			print('Слова {0} встречаются впервые в файле\
+			{1} в строке {2}'.format(find_str, file_name, row))  # Закомментировать. Проверка файлов по списку
+
+print('\nСписок файлов, в которых содержится строка {}:'.format(find_str))
+for file_name in files_list:
+	print(file_name)
+print('Всего: {0} файл(-а)'.format(len(files_list)))
+
+print('\nСписок файлов, в которых НЕ содержится строка {}:'.format(find_str))
+for file_name in files_str_out:
+	print(file_name)
+print('Всего: {0} файл(-а)'.format(len(files_str_out)))
+# db_datareader
