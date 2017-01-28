@@ -1,16 +1,31 @@
+# -*- coding: utf-8 -*-
+
+import subprocess
+import sys
 import os
 import glob
 
+width = '300'   # Требуемая ширина в пикселях
+
+# extension = ['jpg', 'JPG', 'JPEG','jpeg', 'png', 'gif', 'tiff', 'tif'] # Расширения\Форматы
 
 source = 'Source'
+out = 'Result'
 
-files = glob.glob(os.path.join(source, "*.jpg"))
+files = glob.glob(os.path.join(source, '*.jpg'))
 
-list_files = list(files)
-print(files)
+img_list = list(files)
+print(img_list)
 
-for elm in list_files:
-    with open(elm) as file:
+
+if not os.path.isdir(out):
+    os.mkdir(out)
+
+print('\nТекущая директория %s \n' % (os.getcwd()))
+print('\nПапка с обработанными файлами %s \n' % (out))
+#
+# for elm in list_files:
+#     with open(elm) as file:
 
 
 # Используйте команду sips
