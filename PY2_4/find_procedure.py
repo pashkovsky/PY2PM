@@ -10,52 +10,40 @@ files = glob.glob(os.path.join(migrations, "*.sql"))
 files2 = glob.glob(os.path.join(advanced_migrations, "*.sql"))
 
 # Cписок файлов отобранных по маске
-files_list =list(files)
+files_list = list(files)
 for file in files2:
     files_list.append(file)
 
-print('Количество файлов, которые проверяются в запросе: ', len(files_list))
-
 # Контрольный список файлов, которые не содержат строку поиска
-files_str_out = []
+files_with_str = []
 
-# Осуществляем поиск в файлах запрошенной строки
-def find_str(files_list, files_str_out, search_line):
+# Осуществляем поиск в файлах запрошенной строки (алгоритм стигматизации файлов по условиям поиска)
+def find_str(files_list, search_line):
+    print('Количество файлов, которые проверяются при выполнении поискового запроса: ', len(files_list))
     for file_name in files_list:
         with open(file_name) as file:
             try:
                 data = file.read()
                 row = data.find(search_line)
-                if  row == -1:
-                    files_str_out.append(file_name)
-                    files_list.remove(file_name)
+                if  row != -1:
+                    files_with_str.append(file_name)
             except:
                 print('Обшибка в кодировке файла {0}'.format(file_name))
 
-    return files_list
+    return files_with_str
 
-# Часть кода, если нужна информация на какой строке файла выполняется впервые поисковый запрос
-#			print('Файл {0} удален'.format(file_name)) # Закомментировать. Проверка файлов по списку
-#		else:
-#			print('Слова {0} встречаются впервые в файле\
-#			{1} в строке {2}'.format(find_str, file_name, row))  # Закомментировать. Проверка файлов по списку
 
-def files_with_str(files_list):
+def files_with_string(files_with_str):
     print('\nСписок файлов, в которых содержится строка {}:'.format(search_line))
-    for file_name in files_list:
+    for file_name in files_with_str:
         print(file_name)
-    print('Всего: {0} файл(-а)'.format(len(files_list)))
+    print('Всего: {0} файл(-а)'.format(len(files_with_str)))
 
-def list_files_str_out(files_str_out):
-    print('\nСписок файлов, в которых НЕ содержится строка {}:'.format(search_line))
-    for file_name in files_str_out:
-        print(file_name)
-    print('Всего: {0} файл(-а)'.format(len(files_str_out)))
 
 # Панель управления программой:
 while files_list is not None:
     print('\nНачинаем поиск')
     search_line = input('Введите условия поиска: ')  # Поисковый запрос
-    find_str(files_list, files_str_out, search_line) # Алгоритм стигматизации файлов по условиям поиска
-    files_with_str(files_list)                       # Вывод списка файлов, которые  отвечают условиям поиска
-#    list_files_str_out(files_str_out)               # Вывод списка файлов, которые НЕ отвечают условиям поиска
+    find_str(files_list, search_line)                # Алгоритм стигматизации файлов по условиям поиска
+    files_with_string(files_with_str)                # Вывод списка файлов, которые  отвечают условиям поиска
+    files_list = files_with_str[:]                   # Очистка и копирование в files_list элементов результата поиска
