@@ -7,14 +7,14 @@ import os
 # Требуемая ширина в пикселях
 new_width = '200'
 
-# Создаем директорию, в которую будем помещать конвертированные изображения
-create_directory_out = subprocess.run(['mkdir', '-p', './Result'])
-
 # Директория, из которой будем брать изображения
 directory_source = 'Source'
 
 # Директория, в которую будем помещать конвертированные изображения
 directory_out = 'Result'
+
+# Создаем директорию, в которую будем помещать конвертированные изображения
+os.makedirs(directory_out)
 
 # Получаем список файлов в переменную files
 files = os.listdir(directory_source)
@@ -26,27 +26,24 @@ files = os.listdir(directory_source)
 images = filter(lambda x: x.endswith('.jpg'), files)
 
 img_list = list(images)
-print(img_list)  # Закомментировать
 
-# if not os.path.isdir(out):
-#     os.mkdir(out)
-
-# Отображаем текущую и целевую директории
+# Контроль. Отображаем текущую, целевую директории и список файлов
 print('\nТекущая директория – %s' % (os.getcwd()))
+print(img_list)
 print('Директория с обработанными изображениями – %s \n' % directory_out)
 
-# Цикл конвертирования изображений с помощью программы sips
+# Цикл конвертирования изображений с помощью команды sips
 for file_name in img_list:
     print(file_name)  # Закомментировать
-    subprocess.run(['sips', '--resampleWidth', 'new_width', '--out', './directory_out/file_name',
-                    './directory_source/file_name', ])
+    subprocess.run(['sips', '--resampleWidth', new_width, '--out', os.path.join(directory_out, file_name),
+                    os.path.join(directory_source, file_name)])
 
-# TODO: Разобраться в чем причина ошибки "not a valid file"
-# Warning: ./directory_source/file_name not a valid file - skipping Error 4: no file was specified
+    # Получил решение проблемы: Warning: ./directory_source/file_name not a valid file - skipping Error 4: no
+    # file was specified с помощью обращения:
+    # http://stackoverflow.com/questions/41923184/sips-command-in-a-python-script-is-not-working-error-4-no-file-was
+    # -specified
 
-# Используйте команду sips
-# Документация:
-# https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/sips.1.html
-# Пример использования для нашей задачи:
-# sips --resampleWidth 200 myphoto.jpg
-# sips --resampleWidth 200 --out ./Result/face-04_200.jpg ./Source/face-04.jpg
+    # Документация: https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/sips.1.html
+
+    # Второй способ создания директории
+    # create_directory_out = subprocess.run(['mkdir', '-p', './Result'])
