@@ -7,7 +7,7 @@ import json
 words = {}
 list_of_words = []
 list_of_long_words = []
-word_length = 0
+
 
 def encoding(file_name):
     if file_name == 'newsfr.json':
@@ -16,11 +16,13 @@ def encoding(file_name):
         file_encoding = "windows-1251"
     elif file_name == 'newscy.json':
         file_encoding = "KOI8-R"
-    else: file_encoding = "UTF-8"
+    else:
+        file_encoding = "UTF-8"
     return file_encoding
 
-def parsing_file(file_name, word_length):
-    with codecs.open(file_name, encoding = encoding(file_name)) as file_news:
+
+def parsing_file(file_name, word_length, list_words):
+    with codecs.open(file_name, encoding=encoding(file_name)) as file_news:
 
         rss_of_news = json.load(file_news)
 
@@ -30,34 +32,38 @@ def parsing_file(file_name, word_length):
             except TypeError:
                 description = news['description']
 
-            list_of_words = description.split()             # Добавление в список слов из строки
+            list_words = description.split()                # Добавление в список слов из строки
 
-            for word in list_of_words:                      # Выборка слов длиннее n количества символов
+            for word in list_words:                         # Выборка слов длиннее n количества символов
                 if len(word) > word_length:
                     list_of_long_words.append(word)
 
     for word in list_of_long_words:                         # Подсчет слов, длиннее n количества символов
         if word in words:
             words[word] += 1
-        else: words[word] = 1
+        else:
+            words[word] = 1
 
-    l = lambda x: x[1]                                      # Формула из http://pytalk.ru/forum/python/24229/
-    t3 = sorted(words.items(), key=l, reverse=True)
+    def l(x):
+        return x[1]
 
-#    print(sorted(words.items(), key=l, reverse=True))  # Печать полностью всего сортированого списка. Проверка
+    list_sorted_words = sorted(words.items(), key=l, reverse=True)
 
     print('Список первых 10 наиболее часто встречающихся в новостях\
     слов с длиной более {} символов:'.format(word_length))
-    for p in t3[:10]:                                   # Печать первых 10 элементов списка
-        print(p)
+    for words_selected in list_sorted_words[:10]:  # Печать первых 10 элементов списка
+        print(words_selected)
+
 
 # Панель управления программой
 
-file_name = input('Укажите с новой строки название файла, который Вы хотите обработать с помощью программы\n')
-# file_encoding = input('Укажите с новой строки кодировку файла\n')
-word_length = int(input('Укажите с новой строки длинее какого количества символов будут учитываться слова\n'))
+file = input('Укажите с новой строки название файла, который Вы хотите обработать с помощью программы\n')
 
-parsing_file(file_name, word_length)
+# file_encoding = input('Укажите с новой строки кодировку файла\n')
+
+word_len = int(input('Укажите с новой строки длинее какого количества символов будут учитываться слова\n'))
+
+parsing_file(file, word_len, list_of_words)
 
 # Информация про кодировки файлов:
 # 'newsfr.json' : "iso8859_5"
