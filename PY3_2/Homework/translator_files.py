@@ -30,8 +30,8 @@ def choice_language(file, lang_out):
     return lang + lang_out
 
 
-#
-def export_mytext(file):
+# чтение текста из файла для перевода
+def import_text(file):
     with open(os.path.join(directory_source, file)) as f:
         text = f.readlines()
         return text
@@ -54,6 +54,9 @@ def translate_me(mytext, lang):
 
     :param text: <str> text for translation.
     :return: <str> translated text.
+
+    Args:
+        mytext:
     """
     params = {
         'key': KEY,
@@ -64,14 +67,18 @@ def translate_me(mytext, lang):
     return response.json()
 
 
-second_lang = input('Введите язык, на который следует перевести текст файлов: ')
+# запись текста в файл после перевода
+def export_text(file, text):
+    with open(os.path.join(directory_result, file), 'w') as f:
+        f.write(text)
+        print('Переведен и сохранен файл ', os.path.join(directory_result, file))
+
 
 # Пакетный перевод файлов
+second_lang = input('Введите язык, на который следует перевести текст файлов, находящихся в папке "Source": ')
 for file_name in list_files:
-    print(file_name)
-    print(choice_language(file_name, second_lang))
-    lang_pair = choice_language(file_name, second_lang)
-    print(export_mytext(file_name))
-    tr = export_mytext(file_name)
-    json = translate_me(tr, lang_pair)
-    print(' '.join(json['text']))
+    lang_pair = choice_language(file_name, second_lang) # формируем пару языков для параметров перевода
+    text_for_translate = import_text(file_name)         # читаем текст из файла для перевода
+    json = translate_me(text_for_translate, lang_pair)  # переведенный текст
+    text_after_translate = ' '.join(json['text'])       # форматируем переведенный текст
+    export_text(file_name, text_after_translate)        # записываем переведенный текст в файл
