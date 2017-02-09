@@ -2,48 +2,66 @@ import glob
 import os
 
 
+# директории с файлами для поиска
 migrations = 'Migrations'
 advanced_migrations = 'Advanced Migrations'
 
-# Отбираем файлы по маске
-files = glob.glob(os.path.join(migrations, "*.sql"))
+
+# отбираем файлы по маске
+files1 = glob.glob(os.path.join(migrations, "*.sql"))
 files2 = glob.glob(os.path.join(advanced_migrations, "*.sql"))
 
-# Cписок файлов отобранных по маске
-files_list = list(files)
-for file in files2:
-    files_list.append(file)
 
-# Контрольный список файлов, которые не содержат строку поиска
-files_with_str = []
-
-# Осуществляем поиск в файлах запрошенной строки (алгоритм стигматизации файлов по условиям поиска)
-def find_str(files_list, search_line):
-    print('Количество файлов, которые проверяются при выполнении поискового запроса: ', len(files_list))
-    for file_name in files_list:
-        with open(file_name) as file:
-            try:
-                data = file.read()
-                row = data.find(search_line)
-                if  row != -1:
-                    files_with_str.append(file_name)
-            except:
-                print('Обшибка в кодировке файла {0}'.format(file_name))
-
-    return files_with_str
+# формируем список файлов, отобранных по маске
+def create_files_list(list1, list2):
+    result = list(list1)
+    for file in list2:
+        result.append(file)
+    return result
 
 
-def files_with_string(files_with_str):
-    print('\nСписок файлов, в которых содержится строка {}:'.format(search_line))
-    for file_name in files_with_str:
+# поиск в строках файлах по условиям поискового запроса
+def find_str(list_in, search):
+    print('Количество файлов, которые проверяются при выполнении поискового запроса: ', len(list_in))
+    found = []
+    for file_name in list_in:
+        with open(file_name, encoding='utf-8', errors='ignore') as f:
+            data = f.read()
+            row = data.find(search)
+            if row != -1:
+                found.append(file_name)
+    return found
+
+
+# вывод списка найденных файлов построчно
+# вывод количества найденных файлов
+def show_files_with_string(found, search):
+    print('\nСписок файлов, в которых содержится строка {}:'.format(search))
+    for file_name in found:
         print(file_name)
-    print('Всего: {0} файл(-а)'.format(len(files_with_str)))
+    print('Всего: {0} файл(-а)'.format(len(found)))
 
 
-# Панель управления программой:
-while files_list is not None:
-    print('\nНачинаем поиск')
-    search_line = input('Введите условия поиска: ')  # Поисковый запрос
-    find_str(files_list, search_line)                # Алгоритм стигматизации файлов по условиям поиска
-    files_with_string(files_with_str)                # Вывод списка файлов, которые  отвечают условиям поиска
-    files_list = files_with_str[:]                   # Очистка и копирование в files_list элементов результата поиска
+# инкремент итераций ввода поисковых запросов
+i = 1
+
+
+# панель управления программой
+while True:
+    # ограничиваем использование полного списка файлов для поиска только первой итерацией
+    if i == 1:
+        files_list = create_files_list(files1, files2)
+
+    # вводим поисковый запрос
+    search_line = input('\nНачинаем поиск. \nВведите условия поиска: ')
+
+    # добавляем в список названия файлов, содержащих строки, отвечающие условиям поискового запроса
+    files_with_str = find_str(files_list, search_line)
+
+    # выводим список файлов, отвечающих условиям поискового запроса
+    show_files_with_string(files_with_str, search_line)
+
+    # очищаем и копируем в files_list элементов результата поиска
+    files_list = files_with_str[:]
+
+    i += 1
