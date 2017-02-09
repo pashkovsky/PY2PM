@@ -1,9 +1,9 @@
 # Входные параметры функции: путь к файлу с данными;
 # Семь значений температур по Фаренгейту. Файл temps.txt
-#
 # Какая средняя арифм. температура по Цельсию на неделю
 # Написать функции, которые на вход примут данные из соответствующих файлов и посчитают результат.
 # Результат выводить в консоль.
+
 import osa
 
 
@@ -11,6 +11,7 @@ PATH = './temps.txt'
 URL = 'http://www.webservicex.net/ConvertTemperature.asmx?WSDL'
 
 
+# функция извлечения данных о температуре из файла
 def data_extraction(path):
     with open(path) as f:
         result = []
@@ -20,6 +21,7 @@ def data_extraction(path):
         return result
 
 
+# функция вычисления среднего арифметического из списка
 def calculate_average(lst):
     i = len(lst)
     s = 0
@@ -29,19 +31,21 @@ def calculate_average(lst):
     return result
 
 
+# функция конвертации температур с помощью ресурса http://www.webservicex.net
+def convert_temperature(temperature):
+    client = osa.Client(URL)
+    response = client.service.ConvertTemp(Temperature = temperature, \
+                                          FromUnit='degreeFahrenheit', ToUnit='degreeCelsius')
+    return response
 
 
 # EXECUTE
-print(data_extraction(PATH))
+# отформатированный список температур из файла
+data_lst = data_extraction(PATH)
 
+# средняя арифметическая температура по Фарингейту
+avg_F = calculate_average(data_lst)
 
-client = osa.Client(URL)
-response = client.service.ConvertTemp(Temperature = '100', FromUnit = 'degreeFahrenheit', ToUnit = 'degreeCelsius')
-print(response)
-
-
-
-
-
-
-
+# средняя арифметическая температура по Цельсию
+avg_C = convert_temperature(avg_F)
+print('%.2f' % avg_C)
