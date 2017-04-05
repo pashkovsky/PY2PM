@@ -6,7 +6,7 @@ from urllib.parse import urlencode, urlparse
 import requests
 
 AUTORIZE_URL = 'https://oauth.vk.com/authorize'
-APP_ID = 5964550
+APP_ID = 5966691
 USER_ID = 621819
 VERSION = 5.62
 
@@ -29,7 +29,7 @@ VERSION = 5.62
 # access_token = fragments['access_token']                            # выбираем фрагмент с ключом 'access_token'
 # print(access_token)
 #
-access_token = '2e9e11b0bd09684cb235579d99db1aea3ef48c048be97a2bd8fc8a4f4a3867a11aac378e07ca2036a5c5c'
+access_token = 'd550e0889c3f3c1d048f597b98fb07102a11947f56cd2f9b17a6190d77d82a4a1130cbf8e1ace4352086e'
 
 def create_followers_list(user_id):
     params = {
