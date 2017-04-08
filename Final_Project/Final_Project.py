@@ -1,47 +1,53 @@
-# -*- coding: UTF-8 -*-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from pprint import pprint
-from urllib.parse import urlencode, urlparse
+# from urllib.parse import urlencode, urlparse
 
 import requests
 
+import operator
+
+import json
+
+
+# Получает Id знаменитости ВКонтакте
+# USER_ID = int('Введите ниже id пользователя вКонтакте: \n')
+
 AUTORIZE_URL = 'https://oauth.vk.com/authorize'
-APP_ID = 5966691
-USER_ID = 621819
+APP_ID = 5972820
+USER_ID = 621819  # закомментировать
 VERSION = 5.62
 
-#
-# auth_data = {
-#     'client_id': APP_ID,                # ID пользователя
-#     'display': 'mobile',                # параметры отображения
-#     'response_type': 'token',           # получение токена
-#     'scope': 'Users, Friends, Groups, Status',  # параметры доступа
-#     # 'fields' => 'bdate',
-#     'v': VERSION
-# }
-#
-# print('?'.join((AUTORIZE_URL, urlencode(auth_data))))
-#
-# token_url = 'https://oauth.vk.com/blank.html#access_token=2e9e11b0bd09684cb235579d99db1aea3ef48c048be97a2bd8fc8a4f4a3867a11aac378e07ca2036a5c5c&expires_in=86400&user_id=8671131'
-# # Выделение из token_url  токена
-# o = urlparse(token_url)                                             # парсим token_url
-# fragments = dict((i.split('=') for i in o.fragment.split('&')))     # разбираем на фрагменты
-# access_token = fragments['access_token']                            # выбираем фрагмент с ключом 'access_token'
-# print(access_token)
-#
-access_token = 'd550e0889c3f3c1d048f597b98fb07102a11947f56cd2f9b17a6190d77d82a4a1130cbf8e1ace4352086e'
+dict_groups_title = {}
 
+access_token = '3bcd2395276126d86b30b2564b4ee8f806230fb9822a823a1f318dae458b6140ebf02ff8041a336759eab'
+
+
+def count_followers(user_id):
+    params = {
+        'access_token': access_token,
+        'user_id': user_id,
+        'v': 5.63,
+        'fields': 'count'
+    }
+    out = requests.get('https://api.vk.com/method/users.getFollowers', params)
+    result = out.json()
+    count_followers = result['response']['count']
+    return count_followers
+
+
+# Находит всех друзей и подписчиков знаменитости
 def create_followers_list(user_id):
     params = {
         'access_token': access_token,
         'user_id': user_id,
         'v': 5.63,
-        'count': '200',
-        'fields': 'count'
+        'count': '30',
     }
     response = requests.get('https://api.vk.com/method/users.getFollowers', params)
     result = response.json()
-    print(result)
+#    print(result)
     followers_id_list = []
     if result.get('error') is None:
         for follower_id in result['response']['items']:
@@ -55,8 +61,7 @@ def create_friends_list(user_id):
         'user_id': user_id,
         'order': 'name',
         'v': VERSION,
-        'count': '2000'
-        #'fields': 'domains'
+        'count': '30'
     }
 
     response = requests.get('https://api.vk.com/method/friends.get', params)
@@ -68,84 +73,121 @@ def create_friends_list(user_id):
         return friend_id_list
 
 
-# Функция импорта персональных данных
-def import_users_data(user_ids_list):
-    user_ids_list = str(user_ids_list)
+# создание общего списка пользователей из числа подписчиков и друзей известности
+def create_common_list(list1,list2):
+    response = list1 + list2
+    return response
+
+
+# функция извлечения данных о группе и создания пар группа : юзер
+def import_id_groups_per_users(user_id, list):
     params = {
-        'user_ids': user_ids_list,
-        'v': VERSION,
-        'order': 'name',
-        'fields': 'last_name, first_name'
+        'user_id': user_id,
+        'access_token': access_token,
+        'v': 5.63,
+        'extended': 1
     }
 
-    response = requests.get('https://api.vk.com/method/users.get', params)
-    if response.json().get('error') is None:
-        result = response.json()['response']
-        return result
+    response = requests.get('https://api.vk.com/method/groups.get', params)
+    result = response.json()
+#    print('RESULT1', result)
+    try:
+        if result['response']['count'] > 0:
+            result = result['response']['items']
+#            print('RESULT2',result)
+            for group in result:
+#                print('GROUP', group)
+                group_title = group['name']
+                group_id = group['id']
+                list.append([group_id, user_id])
+                if group_id not in dict_groups_title:
+                    dict_groups_title[group_id] = group_title
+    except:
+        pass
+    return list
 
-# # Функция создания пар друг : друг друга для реализации анализа пересечения
-# def create_pairs_friends(dict_friends):
-#     pairs_friends_list = []
-#     for key in dict_friends:
-#         if dict_friends[key] is not None:
-#             for friend_friend in dict_friends[key]:
-#                 pairs_friends_list.append([key, friend_friend])
-#     return pairs_friends_list
-#
-#
+
+# формирование общего списка пар группа : юзер
+def create_common_list_pairs_group_and_users(list):
+    print(len(list))
+    common_list = []
+    count_user = 0
+    for user in list:
+        import_id_groups_per_users(user, common_list)
+        count_user += 1
+        print('User: ', count_user)
+    return common_list
+
+
+# создание словаря групп с пользователями (група: [пользователь 1, пользователь 2...]
+def invert_list_to_dict(list):
+    dict_groups = {}
+    for el in list:
+        a = el[0]
+        b = el[1]
+        if a not in dict_groups.keys():
+            dict_groups[a] = [b]
+        else:
+            dict_groups[a].append(b)
+    return dict_groups
+
+
+# присвоение имени группы по ее id
+def set_title_group(dict_id, dict_name):
+    dict_with_title = {}
+    for i in dict_id:
+        for x in dict_name:
+            if i == x:
+                y = dict_name[x]
+                z = dict_id[i]
+                dict_with_title[y] = len(z)
+    return dict_with_title
+
+# 4) Показывает топ 100 групп по количеству подписчиков знаменитости
+def slice_top_100(dict):
+    dc_sort = sorted(dict.items(), key=operator.itemgetter(1), reverse=True)
+    top100 = dc_sort[:100]
+    response = {}
+    for i in top100:
+        dict_temp = {}
+        key = i[0]
+        dict_temp[key] = i[1]
+        response.update(dict_temp)
+    return response
+
+# Добавляем ключи title и count
+def added_new_keys(dict):
+    response = []
+    for i in dict:
+        dict_pair = {}
+        dict_pair['title'] = i
+        dict_pair['count'] = dict.get(i)
+        response.append(dict_pair)
+    return response
+
+
+# Топ 100 групп должны сохранятся в файл в формате json в формате:
+# [
+# {‘title’: ‘Название группы’, ‘count’: число_подписчиков},
+# {‘title’: ‘Название группы2’, ‘count’: число_подписчиков_2}, ... ]
+
+def write_to_json(dict):
+    with open('top100groups.json', mode='w', encoding="utf-8") as f:
+        json.dump(dict, f)
+        f.close()
+
+
 followers = create_followers_list(USER_ID)
 friends = create_friends_list(USER_ID)
-print('FOLLOWERS:')
-pprint(followers)
-print('FRIENDS:')
-pprint(friends)
+common_list = create_common_list(followers, friends)
+# print('COMMON LIST: ', common_list)
+list_pairs = create_common_list_pairs_group_and_users(common_list)
+#print(list_pairs)
+dict_groups = invert_list_to_dict(list_pairs)
+dict_groups = set_title_group(dict_groups, dict_groups_title)
+dict_top100 = slice_top_100(dict_groups)
+result = added_new_keys(dict_top100)
+print('Количество групп: ', len(dict_top100))
+pprint(result)
 
-# # Получите список всех своих друзей;
-# my_friends_list = create_friends_list(USER_ID)
-# print('Список моих друзей, ФИО: ')
-# pprint(import_users_data(my_friends_list))
-
-#
-# # Для каждого своего друга получите список его друзей;
-# dict_friends = {}
-# for friend in my_friends_list:
-#     friends_friends_list = create_friends_list(friend)
-#     print('Список друзей {0} {1}: \n{2}'.format(import_users_data(friend)[0]['last_name'], \
-#                                               import_users_data(friend)[0]['first_name'], \
-#                                               import_users_data(friends_friends_list)))
-#     print('-------------------------------')
-#     dict_friends[friend] = friends_friends_list
-#
-#
-# #
-# # new_friends_list = [['Коля', 97990388], ['Коля', 13842212], ['Серега', 285504492], ['Серега', 97990388],
-# #                     ['Макс', 4602111], ['Макс', 97990388], ['Егор', 285504492], ['Егор', 97990388]]
-#
-# def create_mutual_friends_dict(dict_friends):
-#     new_friends_list = create_pairs_friends(dict_friends)
-#     mutual_friends_dict = {}
-#     for friend in new_friends_list:
-#         temporary_list = new_friends_list[1:]
-#         a = friend[1]
-#
-#         if mutual_friends_dict.get(a) is None:
-#             mutual_friends_set = set()
-#             mutual_friends_dict[a] = mutual_friends_set
-#
-#         for friend_friend in temporary_list:
-#             if friend[1] == friend_friend[1]:
-#                 b = friend[0]
-#                 c = friend_friend[0]
-#
-#                 if b or c not in mutual_friends_set:
-#                     mutual_friends_set.add(b)
-#                     mutual_friends_set.add(c)
-#                 temporary_list.remove(friend_friend)
-#
-#         new_friends_list = temporary_list
-#
-#         if mutual_friends_dict[a] == set():
-#             mutual_friends_dict.pop(a)
-#         return mutual_friends_dict
-#
-# print('пересечения (общих друзей) между всеми пользователями: ', create_mutual_friends_dict(dict_friends))
+write_to_json(result)
