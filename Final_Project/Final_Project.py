@@ -15,13 +15,13 @@ import json
 # USER_ID = int('Введите ниже id пользователя вКонтакте: \n')
 
 AUTORIZE_URL = 'https://oauth.vk.com/authorize'
-APP_ID = 5972820
-USER_ID = 621819  # закомментировать
+APP_ID = 5974739
+USER_ID = 80491907  # закомментировать
 VERSION = 5.62
 
 dict_groups_title = {}
 
-access_token = '3bcd2395276126d86b30b2564b4ee8f806230fb9822a823a1f318dae458b6140ebf02ff8041a336759eab'
+access_token = '334e35eaa08444c372623779a3f25267ab70757822ba037df98a46ae48df9b113cc27da53d34a7537f95c'
 
 
 def count_followers(user_id):
@@ -33,35 +33,41 @@ def count_followers(user_id):
     }
     out = requests.get('https://api.vk.com/method/users.getFollowers', params)
     result = out.json()
+#    print(result)
     count_followers = result['response']['count']
     return count_followers
 
 
-# Находит всех друзей и подписчиков знаменитости
-def create_followers_list(user_id):
-    params = {
-        'access_token': access_token,
-        'user_id': user_id,
-        'v': 5.63,
-        'count': '30',
-    }
-    response = requests.get('https://api.vk.com/method/users.getFollowers', params)
-    result = response.json()
-#    print(result)
+# Находит всех подписчиков знаменитости
+def create_followers_list(user_id, count_followers):
     followers_id_list = []
-    if result.get('error') is None:
-        for follower_id in result['response']['items']:
-            followers_id_list.append(follower_id)
-        return followers_id_list
+    offset = -1000
+    while len(followers_id_list) < (count_followers - 10):
+        offset += 1000
+#        print('OFFSET: ', offset)
+        params = {
+            'access_token': access_token,
+            'user_id': user_id,
+            'v': 5.63,
+            'count': '1000',
+            'offset': offset
+        }
+        response = requests.get('https://api.vk.com/method/users.getFollowers', params)
+        result = response.json()
+        if result.get('error') is None:
+            for follower_id in result['response']['items']:
+                if follower_id not in followers_id_list:
+                    followers_id_list.append(follower_id)
+        print('Count followers import to list: ', len(followers_id_list))
+    return followers_id_list
 
-
-# функция импорта списка друзей
+# Находит всех друзей знаменитости
 def create_friends_list(user_id):
     params = {
         'user_id': user_id,
         'order': 'name',
-        'v': VERSION,
-        'count': '30'
+        'v': VERSION
+#        'count': '2000'
     }
 
     response = requests.get('https://api.vk.com/method/friends.get', params)
@@ -172,15 +178,25 @@ def added_new_keys(dict):
 # {‘title’: ‘Название группы2’, ‘count’: число_подписчиков_2}, ... ]
 
 def write_to_json(dict):
-    with open('top100groups.json', mode='w', encoding="utf-8") as f:
-        json.dump(dict, f)
+    with open('top100groups80491907_378K.json', mode='w', encoding="utf-8") as f:
+        json.dump(dict, f, ensure_ascii=False)
         f.close()
 
 
-followers = create_followers_list(USER_ID)
+count_folls = count_followers(USER_ID)
+print(count_folls)
+followers = create_followers_list(USER_ID, count_folls)
+#print('ФОЛЛОВЕРЫ: ', followers)
+print('КОЛИЧЕСТВО ФОЛЛОВЕРОВ', len(followers))
 friends = create_friends_list(USER_ID)
+print('КОЛИЧЕСТВО ФРЕНДОВ: ', len(friends))
+print(type(friends))
 common_list = create_common_list(followers, friends)
-# print('COMMON LIST: ', common_list)
+#print('COMMON LIST: ', common_list)
+print('КОЛИЧЕСТВО ЮЗЕРОВ: ', len(common_list))
+with open('list_folls.json', mode='w', encoding="utf-8") as f:
+    json.dump(common_list, f, ensure_ascii=False)
+    f.close()
 list_pairs = create_common_list_pairs_group_and_users(common_list)
 #print(list_pairs)
 dict_groups = invert_list_to_dict(list_pairs)
