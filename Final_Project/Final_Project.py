@@ -194,7 +194,7 @@ print(type(friends))
 common_list = create_common_list(followers, friends)
 #print('COMMON LIST: ', common_list)
 print('КОЛИЧЕСТВО ЮЗЕРОВ: ', len(common_list))
-with open('list_folls.json', mode='w', encoding="utf-8") as f:
+with open('list_folls01.json', mode='w', encoding="utf-8") as f:
     json.dump(common_list, f, ensure_ascii=False)
     f.close()
 list_pairs = create_common_list_pairs_group_and_users(common_list)
