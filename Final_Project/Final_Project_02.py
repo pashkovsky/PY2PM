@@ -14,14 +14,19 @@ import json
 # Получает Id знаменитости ВКонтакте
 # USER_ID = int('Введите ниже id пользователя вКонтакте: \n')
 
-AUTORIZE_URL = 'https://oauth.vk.com/authorize'
-APP_ID = 5977252
 USER_ID = 80491907  # закомментировать
 VERSION = 5.62
+API = 'https://api.vk.com/method/'
 
 dict_groups_title = {}
 
-access_token = '335bb3fd921064dcd79200be48140c27bccaba002e60a94709292043aabc0aa28fe7df3929e1968310e5e'
+access_token = '8407958113ef793661fe2aaf3c828853ed23fdce76a418c7cabef03604f62ac020f9288605a674312fe50'
+
+
+def requests_get(method, params):
+    response = requests.get(API + method, params)
+    result = response.json()
+    return result
 
 
 def count_followers(user_id):
@@ -31,7 +36,8 @@ def count_followers(user_id):
         'v': 5.63,
         'fields': 'count'
     }
-    out = requests.get('https://api.vk.com/method/users.getFollowers', params)
+    method = 'users.getFollowers'
+    out = requests_get(method, params)
     result = out.json()
 #    print(result)
     count_followers = result['response']['count']
@@ -48,7 +54,8 @@ def create_followers_list(user_id):
         'v': 5.63,
         'count': '1000',
     }
-    response = requests.get('https://api.vk.com/method/users.getFollowers', params)
+    method = 'users.getFollowers'
+    response = requests_get(method, params)
     result = response.json()
     if result.get('error') is None:
         for follower_id in result['response']['items']:
@@ -66,7 +73,8 @@ def create_friends_list(user_id):
         'count': '1000'
     }
 
-    response = requests.get('https://api.vk.com/method/friends.get', params)
+    method = 'friends.get'
+    response = requests_get(method, params)
     result = response.json()
     friend_id_list = []
     if result.get('error') is None:
@@ -90,7 +98,8 @@ def import_id_groups_per_users(user_id, list):
         'extended': 1
     }
 
-    response = requests.get('https://api.vk.com/method/groups.get', params)
+    method = 'groups.get'
+    response = requests_get(method, params)
     result = response.json()
     try:
         if result['response']['count'] > 0:
